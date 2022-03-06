@@ -7,16 +7,27 @@ const { Interaction } = require('discord.js');
 const halo = new Halo();
 
 module.exports = {
+    sips: 0,
+
     async register_commands(token, client_id, version = '9') {
         const commands = [
             new SlashCommandBuilder().setName('ping').setDescription('Ping Fletbot'),
-            new SlashCommandBuilder().setName('rank')
+            /*new SlashCommandBuilder().setName('rank')
                 .setDescription("Get a player's rank")
                 .addStringOption(opt => {
                     return opt.setName('gamertag')
                         .setDescription("XBL name to search for")
                         .setRequired(true)
-            })
+            }),*/
+            new SlashCommandBuilder().setName('sip').setDescription('Increment sip counter'),
+            new SlashCommandBuilder().setName('setsips')
+                .setDescription('Set sip counter to a specified number')
+                .addIntegerOption(opt => {
+                    return opt.setName('sipcount')
+                        .setDescription('Number to set sip count to')
+                        .setRequired(true)
+            }),
+            new SlashCommandBuilder().setName('getsips').setDescription('Get current sip count')
         ];
         const rest = new REST({ version }).setToken(token);
         await rest.put(Routes.applicationCommands(client_id), { body: commands });
@@ -29,7 +40,7 @@ module.exports = {
      */
     async ping() {
         return {
-            msg: "pong",
+            msg: "Bleep bloop",
             ack: false
         };
     },
@@ -64,5 +75,51 @@ module.exports = {
                 ack: true
             };
         }
+    },
+
+    /**
+     * Increment sip counter
+     * @returns {Object} String containing sip count
+     */
+    async sip() {
+        module.exports.sips++;
+        return {
+            msg: `${sip_grammar(module.exports.sips)}... So far`,
+            ack: false
+        };
+    },
+
+    /**
+     * Set sip count to specified number
+     * @param {Interaction} interaction 
+     * @returns {Object} Message containing new sip count
+     */
+    async setsips(interaction) {
+        const sips = interaction.options.getInteger('sipcount', true);
+        module.exports.sips = sips;
+        return {
+            msg: `Sip count set to ${sip_grammar(module.exports.sips)}`,
+            ack: false
+        };
+    },
+
+    /**
+     * Retrieve current sip count
+     * @returns {Object}
+     */
+    async getsips() {
+        return {
+            msg: `Current sip count: ${sip_grammar(module.exports.sips)}`,
+            ack: false
+        };
     }
+}
+
+/**
+ * 
+ * @param {Number} sip_count
+ * @returns {String}
+ */
+function sip_grammar(sip_count) {
+    return sip_count === 1 ? `1 sip` : `${sip_count} sips`;
 }

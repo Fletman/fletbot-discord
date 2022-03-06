@@ -20,6 +20,7 @@ client.on('interactionCreate', (interaction) => {
       const resp_promise = response.ack ?
         interaction.followUp(response.msg) :
         interaction.reply(response.msg);
+      console.log(response);
       resp_promise
         .catch((err) => console.error(err));
     }).catch((err) => {
